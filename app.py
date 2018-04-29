@@ -1,24 +1,31 @@
-from flask import Flask, request, abort
+import logging
+import time
 
-from linebot import (
-    LineBotApi, WebhookHandler
-)
-from linebot.exceptions import (
-    InvalidSignatureError
-)
+from flask import Flask,request , abort
+import requests
+from linebot import (LineBotApi , WebhookHandler)
+
+from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, ImageSendMessage
+MessageEvent,
+TextMessage ,
+TextSendMessage,
+CarouselTemplate,
+URITemplateAction,
+TemplateSendMessage,
+CarouselColumn
 )
+
+BACKEND_SERVUCE = "http://35.229.156.92:7705"
 
 app = Flask(__name__)
 
-# Channel Access Token
-line_bot_api = LineBotApi('LYwHL8AUdUHSTCjwP15S/6VGkKP7RUPE7Th8TRufAURcoPs9aNmonOZ90JctT0fYRbTxoa5lvSl2t28sy87bbecb3Y62si9dWPHm/BCqP6jAojyZZAs+eQ+HBofIGuFHlbcpq9l6lyvnXzo/l3BsagdB04t89/1O/w1cDnyilFU=')
-# Channel Secret
-handler = WebhookHandler('6a581aa9ecc578501d45db0af8d42b2d')
+LINE_CHANNEL_SECRET = 'e9d5b7f1223e54b57a458d4c82eff1fc'
+LINE_CHANNEL_ACCESS_TOKEN = 'h6rGRksS2ZRJl4xFvfv2tDrBiAwTVUEPMtczNSy8cwe6yLbJ87wleDMyhIIF6+lwsDCR1XMBf8MCqDjegzEzKxyiF1hBOrkgZAIxoBQKlq55fSRnVtQx2F7XNgzhpBbXqcZcWbwjFFpXj0Uia4F12wdB04t89/1O/w1cDnyilFU='
+line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
-# 監聽所有來自 /callback 的 Post Request
-@app.route("/callback", methods=['POST'])
+@app.route("/", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
     signature = request.headers['X-Line-Signature']
@@ -35,16 +42,13 @@ def callback():
 
     return 'OK'
 
-
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    message = TextSendMessage(text=event.message.text)
-    line_bot_api.reply_message(
-        event.reply_token,
-        message)
+        message = TextSendMessage(text=event.message.text)
+        line_bot_api.reply_message(
+            event.reply_token,
+            message)
 
-import os
 
 if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
     app.run()
